@@ -33,6 +33,7 @@ def remove_words(words_list):
 
 # 分词处理
 def segment(sentence, cut_type='word', pos=False):
+    jieba.load_userdict("C:\\workspace\\06_NLP\\02_src\\userDict.txt")
     if pos:
         if cut_type == 'word':
             word_pos_seq = posseg.lcut(sentence)
@@ -65,7 +66,7 @@ def parse_data(train_path, test_path):
     # Report部分如果为空，则删除此行
     train_df.dropna(subset=['Report'], how='any', inplace=True)
 
-    # 去除x为空的部分，进行填充。剩余字段是输入，包含Brand,Model,Question,Dialogue，如果有空，填充即可
+    # 填充x为空的部分，进行填充。剩余字段是输入，包含Brand,Model,Question,Dialogue，如果有空，填充即可
     train_df.fillna('', inplace=True)
 
     # 实际的输入X仅仅选择两个字段，将其拼接起来
@@ -86,14 +87,20 @@ def parse_data(train_path, test_path):
 
 def save_data(data_1, data_2, data_3, data_path_1, data_path_2, data_path_3, stop_words_path):
     stopwords = read_stopwords(stop_words_path)
+
+    # 存储训练用的x的部分。 data_path_1
     with open(data_path_1, 'w', encoding='utf-8') as f1:
+        # 计数，用来检验x和y的长度是否相同
         count_1 = 0
         for line in data_1:
+            # 判断此行内容是否为string类型
             if isinstance(line, str):
+                # 拿到每一行时，一般都加上strip函数，去除结尾的'\n'
                 seg_list = segment(line.strip(), cut_type='word')
                 seg_list = remove_words(seg_list)
                 # 考虑stopwords
                 seg_list = [word for word in seg_list if word not in stopwords]
+                # 如果不为空，才是一个有效的样本
                 if len(seg_list) > 0:
                     seg_line = ' '.join(seg_list)
                     f1.write('%s' % seg_line)
@@ -101,6 +108,7 @@ def save_data(data_1, data_2, data_3, data_path_1, data_path_2, data_path_3, sto
                     count_1 += 1
         print('train_x_length is ', count_1)
 
+    # 存储训练用的y的部分。 data_path_2
     with open(data_path_2, 'w', encoding='utf-8') as f2:
         count_2 = 0
         for line in data_2:
@@ -119,6 +127,7 @@ def save_data(data_1, data_2, data_3, data_path_1, data_path_2, data_path_3, sto
                 count_2 += 1
         print('train_y_length is ', count_2)
 
+    # 存储Test用的y的部分。 data_path_3
     with open(data_path_3, 'w', encoding='utf-8') as f3:
         count_3 = 0
         for line in data_3:
