@@ -1,7 +1,7 @@
 from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 from gensim.models.keyedvectors import KeyedVectors
-# from pt20200419.utils.data_utils import dump_pkl
+from Workspace_Main.utils.data_utils import dump_pkl
 
 
 def read_lines(path, col_sep=None):
@@ -53,13 +53,16 @@ def build(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sente
     # test
     sim = w2v.wv.similarity('技师', '车主')
     print('技师 vs 车主 similarity score:', sim)
+
+    # build embedding_matrix
     # load model
     model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
     word_dict = {}
     # model是一个词向量，model.vocab可以拿到向量空间的所有词表。
     for word in model.vocab:
         word_dict[word] = model[word]
-    # dump_pkl(word_dict, out_path, overwrite=True)
+    dump_pkl(word_dict, out_path, overwrite=True)
+    print(word_dict['汽车'])
 
 
 if __name__ == '__main__':
@@ -67,4 +70,4 @@ if __name__ == '__main__':
           '../data/train_set.seg_y.txt',
           '../data/test_set.seg_x.txt',
           out_path='../data/word2vec.txt',
-          sentence_path='../data/sentences.txt',)
+          sentence_path='../data/sentences.txt', )

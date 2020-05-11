@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-import os, re, time
-from config import *
+import re
+from Workspace_Main.config import *
 import pandas as pd
 import jieba
 
