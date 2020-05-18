@@ -2,6 +2,9 @@ from gensim.models import Word2Vec
 from gensim.models.word2vec import LineSentence
 from gensim.models.keyedvectors import KeyedVectors
 from Workspace_Main.utils.data_utils import dump_pkl
+from Workspace_Main.utils.embedding_utils import Vocab
+from Workspace_Main.utils.config import save_wv_model_path
+import numpy as np
 
 
 def read_lines(path, col_sep=None):
@@ -34,10 +37,10 @@ def save_sentence(lines, sentence_path):
     print('save sentence:%s' % sentence_path)
 
 
-# 这里我们要存储一个类似鹅厂的词向量那样的结构。'KEY':[.........]。用于Feed给神经网络，但是神经网络不知道什么时'KEY',
+# 这里我们要存储一个类似鹅厂的词向量那样的结构。'KEY':[.........]。用于Feed给神经网络，但是神经网络不知道什么是'KEY',
 # 所以我们Feed给神经网络词向量的同时，还要提供一个Dict给神经网络，也就是word_dict_build中生成的产物。
 # min_count：根据词频截断
-def build(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sentence_path='',
+def build_bk(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sentence_path='',
           w2v_bin_path="w2v.bin", min_count=100):
     # 取到所有的分词之后的Text数据
     sentences = extract_sentence(train_x_seg_path, test_y_seg_path, test_seg_path)
@@ -58,11 +61,35 @@ def build(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sente
     # load model
     model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
     word_dict = {}
+
     # model是一个词向量，model.vocab可以拿到向量空间的所有词表。
     for word in model.vocab:
         word_dict[word] = model[word]
     dump_pkl(word_dict, out_path, overwrite=True)
     print(word_dict['汽车'])
+
+
+# 由于之前的build中，但当想使用外部词向量时，或者自己训练词向量时后期会出现很多UNK词的情况，如此利用不太好。
+# 而且每一次从id转文字时，都需要加载一次model。因此对build函数做一次优化。
+def build(train_x_seg_path, test_y_seg_path, test_seg_path, out_path=None, sentence_path='', vocab_path='',
+          w2v_bin_path=save_wv_model_path, min_count=100):
+    vocab = Vocab(vocab_path, 30000)  # TODO: vocab_size
+    sentences = extract_sentence(train_x_seg_path, test_y_seg_path, test_seg_path)
+    save_sentence(sentences, sentence_path)
+    print('train w2v model...')
+    # train model
+    w2v = Word2Vec(sg=1, sentences=LineSentence(sentence_path),
+                   size=256, window=5, min_count=min_count, iter=5)
+    w2v.wv.save_word2vec_format(w2v_bin_path, binary=True)
+    model = KeyedVectors.load_word2vec_format(w2v_bin_path, binary=True)
+    word_dict = {}
+
+    for word, index in vocab.word2id.items():
+        if word in model.vocab:
+            word_dict[index] = model[word]
+        else:
+            word_dict[index] = np.random.uniform(-0.025, 0.025, 256)
+    dump_pkl(word_dict, out_path, overwrite=True)
 
 
 if __name__ == '__main__':

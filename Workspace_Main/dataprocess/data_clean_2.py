@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
-from Workspace_Main.config import *
+from Workspace_Main.utils.config import *
 import pandas as pd
 import jieba
 

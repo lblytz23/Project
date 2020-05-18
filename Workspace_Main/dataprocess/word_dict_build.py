@@ -14,7 +14,7 @@ def read_data(path_1, path_2, path_3):
             open(path_3, 'r', encoding='utf-8') as f3:
         words = []
         for line in f1:
-            words = line.split()
+            words += line.split(' ')
 
         for line in f2:
             words += line.split(' ')
@@ -41,7 +41,8 @@ def build_vocab(items, sort=True, min_count=0, lower=False):
         for item in items:
             for i in item.split(" "):
                 i = i.strip()
-                if not i: continue
+                if not i:
+                    continue
                 i = i if not lower else item.lower()
                 dic[i] += 1
         # sort
