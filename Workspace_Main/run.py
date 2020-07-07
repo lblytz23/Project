@@ -5,7 +5,7 @@ import argparse
 import Workspace_Main.training as training
 # import pathlib
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASE_DIR)
 # 获取项目根目录
 # root = pathlib.Path(os.path.abspath(__file__)).parent.parent
@@ -64,7 +64,7 @@ def main():
     parser.add_argument("--epochs", default=5, help="train epochs", type=int)
 
     # mode
-    parser.add_argument("--mode", default='test', help="training, eval or test options")
+    parser.add_argument("--mode", default='train', help="training, eval or test options")
     parser.add_argument("--model", default='SequenceToSequence', help="which model to be slected")
     parser.add_argument("--pointer_gen", default=True, help="training, eval or test options")
     parser.add_argument("--is_coverage", default=True, help="is_coverage")
@@ -74,9 +74,9 @@ def main():
     args = parser.parse_args()
     params = vars(args)
 
-    gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
-    if gpus:
-        tf.config.experimental.set_visible_devices(devices=gpus[0], device_type='GPU')
+    # gpus = tf.config.experimental.list_physical_devices(device_type='GPU')
+    # if gpus:
+    #     tf.config.experimental.set_visible_devices(devices=gpus[0], device_type='GPU')
 
     if params["mode"] == "train":
         training.train(params)

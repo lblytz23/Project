@@ -23,7 +23,7 @@ class Vocab:
         vocab = {mask: index for index, mask in enumerate(self.MASK)}
         reverse_vocab = {index: mask for index, mask in enumerate(self.MASK)}
         # 打开vocab.txt文件
-        for line in open(vocab_file, 'r', encoding='utf-8e').readlines():
+        for line in open(vocab_file, 'r', encoding='utf-8').readlines():
             word, index = line.strip().split('\t')
             index = int(index)
             # 注意末尾一定要减一
@@ -44,6 +44,7 @@ class Vocab:
     # 辅助工具函数(查询工具)，id对应的文字是什么时，
     def id_to_word(self, word_id):
         if word_id not in self.id2word:
+            
             # 返回UNK,或者报错
             return self.UNKNOWN_TOKEN
         return self.id2word[word_id]
