@@ -3,7 +3,7 @@ from pytube import YouTube
 
 class Youtube_Downloader():
     def __init__(self):
-        self.output_path = './Youtube'
+        self.output_path = ''
 
     def functionA(self, url, filename):
         yt = YouTube(url)
