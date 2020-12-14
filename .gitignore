@@ -1,0 +1,7 @@
+/.idea/
+/__pycache__/
+/utils/__pycache__/
+/utils/config/__pycache__/
+**/__pycache__/
+__pycache__
+/.gitignore
