@@ -1,8 +1,6 @@
 import numpy as np
 import pickle
 import os
-import copy
-from collections import Counter
 
 
 def load_pkl(pkl_path):
@@ -16,7 +14,7 @@ def load_pkl(pkl_path):
     return result
 
 
-def load_word2vec(params):
+def load_word2vec(params, max_vocab_size=30000):
     """
     load pretrain word2vec weight matrix
     :param vocab_size:
@@ -24,14 +22,25 @@ def load_word2vec(params):
     """
     word2vec_dict = load_pkl(params['word2vec_output'])
     vocab_dict = open(params['vocab_path'], encoding='utf-8').readlines()
-    embedding_matrix = np.zeros((params['vocab_size'], params['embed_size']))
+    embedding_matrix = np.zeros((max_vocab_size, params['embed_size']))
 
-    for line in vocab_dict[:params['vocab_size']]:
-        word_id = line.split()
-        word, i = word_id
-        embedding_vector = word2vec_dict.get(word)
-        if embedding_vector is not None:
-            embedding_matrix[int(i)] = embedding_vector
+    for i in range(max_vocab_size):
+        embedding_matrix[i] = word2vec_dict[i]
+    # # 加入MASK的embedding
+    # for i in range(4):
+    #     embedding_matrix[i] = word2vec_dict[i]
+    #
+    # for line in vocab_dict[:params['vocab_size'] - 4]:
+    #     word_id = line.split()
+    #     i, word = word_id
+    #     embedding_vector = word2vec_dict.get(int(i) + 4)
+    #     if embedding_vector is not None:
+    #         embedding_matrix[int(i) + 4] = embedding_vector
+    #
+    # unk_matrix = embedding_matrix[1]
+    #
+    # for i in range(params['vocab_size'], max_vocab_size):
+    #     embedding_matrix[i] = unk_matrix
 
     return embedding_matrix
 
