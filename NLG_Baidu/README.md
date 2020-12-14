@@ -13,11 +13,11 @@
 ### Step 1
 > This program aims to train a AI to generate Q & A summary and Inference according to the article.
 >
->Currently the first step, that is, building vocabulary table has been done.
+> Currently the first step, that is, building vocabulary table has been done.
 >
->Based on the train data and test data, all words are given a index by using Jieba and Pandas
+> Based on the train data and test data, all words are given a index by using Jieba and Pandas
 >
->Please run the program from Main Entrance and the vocabulary table called "vocab.txt" will be generated in the output folder.
+> Please run the program from Main Entrance and the vocabulary table called "vocab.txt" will be generated in the output folder.
 
 ### Step 2
 > Create a file called Vocab_build.py for generating word embedding by using Gensim.
@@ -25,5 +25,25 @@
 > After that, by using the vocabulary created last week, a vocabulary metric has been created.
 > 
 > Besides, I also tried fastText to train word vector, and compared with word2vec model.
+
+### Step 3
+> The text data is trained by the Seq2Seq algorithm to complete the construction of the baseline model.
+> 
+> It contains encoder layer, decoder layer and attention layer. The size of vocabulary is limited to 30000 in order to boost training speed.
+
+### Step 4
+> Continue to make improvements to the baseline model by adding TEST mode, checkpoint, etc. The baseline has been completed.
+> 
+> The current TEST model uses a greedy search approach. In the next step, I will try to use the Beam Search approach. (in process).
+> 
+> Due to the capacity of local GPU, the vocabulary size is limited to 2000 in training section, which causes the model effect is not quite good.
+> 
+> I also tried to implement it on Google Cloud Platform, but ended up choosing the same parameter settings due to the instability of resource allocation during extended use.
+
+### Step 5
+> Further improvement of the structure of the program. The PGN model has been added and is structurally separated from the Seq2Seq model. The parameters "model" and "mode" can be used to control which model you want to use (Seq2Seq or PGN), and to test or train.
 >
+> Basically, the last update focuses on PGN. Beam Search and Coverage are also included to figure out the OOV and repeated issues. The current understanding of Beam Search is still shallow.
+>
+> The vocab_size is limited to 2000 due to the computer capacity limitation. If we can use the expanded vocabulary, we may get better performance.
 >
