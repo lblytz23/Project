@@ -20,11 +20,13 @@
 > Please run the program from Main Entrance and the vocabulary table called "vocab.txt" will be generated in the output folder.
 
 ### Step 2
-> Create a file called Vocab_build.py for generating word embedding by using Gensim.
+> Create a file named Vocab_build.py for generating word embedding by using "Gensim".
 > 
-> After that, by using the vocabulary created last week, a vocabulary metric has been created.
+> After that, the dictionary matrix is created by using the dictionary built in the first step
 > 
-> Besides, I also tried fastText to train word vector, and compared with word2vec model.
+> In addition, I trained the word vectors with fasttext instead of word2vec.
+>
+> No other significant features were found, except for a relatively significant difference in the dimension of sentence length.
 
 ### Step 3
 > The text data is trained by the Seq2Seq algorithm to complete the construction of the baseline model.
