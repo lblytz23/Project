@@ -1,0 +1,8 @@
+Install the Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017, and 2019. Starting with the TensorFlow 2.1.0 version, the msvcp140_1.dll file is required from this package (which may not be provided from older redistributable packages). The redistributable comes with Visual Studio 2019 but can be installed separately:
+
+Go to the Microsoft Visual C++ downloads,
+Scroll down the page to the Visual Studio 2015, 2017 and 2019 section.
+Download and install the Microsoft Visual C++ Redistributable for Visual Studio 2015, 2017 and 2019 for your platform.
+Make sure long paths are enabled on Windows.
+
+Install the 64-bit Python 3 release for Windows (select pip as an optional feature).
