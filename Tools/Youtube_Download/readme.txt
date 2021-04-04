@@ -11,3 +11,5 @@ Output:
 Tricks:
 对于背景非黑白的视频以及分辨率在360一下的视频，识别性能较差。
 对于resize和b的参数，建议每个系列视频都进行微调。
+
+OpenCV Subtitle-picking
