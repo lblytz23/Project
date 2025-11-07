@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>股票价格图表</title>
+</head>
+<body>
+    <h1>{{ stock_symbol }} 股票价格图表</h1>
+
+    {% if error %}
+        <p style="color: red;">错误: {{ error }}</p>
+    {% elif plot_url %}
+        <img src="data:image/png;base64,{{ plot_url }}" alt="股票价格图表">
+    {% else %}
+        <p>无可用数据</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('strategy') }}"><button>进入策略页面</button></a>
+</body>
+</html>

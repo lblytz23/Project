@@ -1,0 +1,29 @@
+name		type	note
+json_path		str	アノテファイルパス
+datetime		timestamp	BigQueryへのレコード登録日時
+Manufacturer		str	アノテータ
+MakeDate		str	アノテ時期
+modificationMaker		str	アノテ修正したアノテータ
+modificationDate		str	アノテ修正時期
+imgType		str	camera将来的にCG等も増える?
+CameraType		str	Ver4 将来的にVer5等も増える?
+AnotationPattern			
+	Pattern	str	semaseg 他にdetectionとか?
+	SemsegType	str	full / individual
+	SingleAnotation	str	none / smoke / wiperstreak ...etc
+AssessmentData		bool	アセスデータかどうか
+ChangeAnotationList		List[str]	変更履歴?
+EnableCategoryList		List[str]	アノテ対象クラス一覧
+imgHeight		int	画像高さ
+imgWidth		int	画像幅
+Environment			環境アノテ(新 or 旧)
+	Key	List[str]	
+	Value	List[str]	
+OldEnvironment			環境アノテ(旧)
+	Key	List[str]	
+	Value	List[str]	
+objects		"List[Dict[str, Any]]"	アノテ(label/polygon等)
+	id	int	
+	UserName	str	
+	DrawTime	int	
+	label	str	

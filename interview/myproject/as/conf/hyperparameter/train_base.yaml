@@ -1,0 +1,205 @@
+dataset_path: # 絶対パス
+# 数据集的绝对路径
+
+init_weight_path: # 絶対パス
+# 初始化权重的绝对路径
+
+model_path: /home/jupyter/train/gpu_b3_2/prefetch_02048228_4/ # output/日付配下に生成するディレクトリ名
+# 模型路径：将在 output/日付文件夹下生成的目录名
+
+save_ckhpt_period: 50
+# 检查点保存周期
+
+backbone_weight: None
+batch_size: 256
+val_batch_size: 32 # 注意gpuで計算時にval_batch_sizeが大きすぎるとボトルネックに
+# 验证批次大小：注意，当使用 GPU 计算时，如果 val_batch_size 太大，可能会成为瓶颈
+
+epoch: 5
+gpu_count: 1
+mixed_precision: mixed_float16
+# 使用混合精度计算
+
+# tfds load時のsplit指定。train/val or train[:25%]など可能。詳細はhttps://www.tensorflow.org/datasets/splits
+tfds_load_split_train: "train"
+# 加载训练集的 tfds 分割
+
+tfds_load_split_val: "val"
+# 加载验证集的 tfds 分割
+
+lr:
+  base: 0.08
+  scheduler:
+    policy: poly # step専用/多
+    # 策略：poly/step/cosine/warmup
+    step_params:
+      factor: 1 # lr減衰時の係数
+      # 学习率衰减系数
+
+      dropEvery:  # 指定回数のlrに減衰
+      # 指定次数的学习率衰减
+
+    poly_params: # poly専用パラ
+      # poly策略专用参数
+
+      power: 0.9 # lr減衰時の指数。1.0でlinear
+      # 学习率衰减的指数，1.0为线性
+
+    warmup_params: # warmup専用パラ
+      # warmup策略专用参数
+
+      warmup_epochs: 10 # warmupを行うstep数
+      # warmup的步数
+
+      warmup_power: 1.0 # warmup時の指数。1.0でlinear
+      # warmup时的指数，1.0为线性
+
+    decay_scheduler: cosine # warmup後のlrのscheduler
+    # 学习率衰减策略：cosine
+
+    decay_scheduler_args: {} # warmup後のlrのscheduler用パラ
+    # 学习率衰减策略参数
+
+optimizer:
+  policy: sgd # 今はsgd固定
+  # 优化器策略：当前固定为 SGD
+
+  momentum: 0.9
+  nesterov: True
+
+da_apply:
+  probability: 1.0 # 1.0で常に適用。0.0未満では複数適用。現状はflipの除く全DAで共通。
+  # 数据增强应用概率：1.0为总是应用，0.0以下为多重应用。当前除 flip 外的所有数据增强通用。
+
+  scale: # 拡大/縮小倍率
+  # 缩放倍率
+
+    min: 0.1 # 最小倍率：0.1
+    max: 2.5 # 最大倍率：2.5
+    step: 0.25
+
+  flip: # 水平反転する確率。-0.1反転なし。値域:0.1
+  # 水平翻转概率。-0.1为不翻转。值域:0.1
+
+    prob: 0.0
+
+  brightness: # 明度係数。0.0:暗く。1.0:明るく。値域:-1~1.
+  # 亮度系数。0.0:暗，1.0:亮。值域:-1~1
+
+    min: -0.4
+    max: 0.4
+    step: 0.04
+
+  sharpness: # シャープネスにわかりにくい。0.ぼかし。0シャープネス。-0:変化なし
+  # 锐度调整。不易察觉。0为模糊，0为锐度，-0为无变化
+
+    min: -5.
+    max: 5.
+    step: 1.
+
+process_with_gpu: True
+params_for_gpu: # gpuではbatchごとに処理される
+# GPU 处理每个批次时的参数
+
+  apply_probability: 0.5 # 1つのbatch内のdaの適用比率
+  # 单个批次中应用数据增强的概率
+
+  num_factor_samplings: 2 # 1つのbatch内のdaパラメータの数
+  # 单个批次中数据增强参数的数量
+
+  factor_distribution: normal # daパラメータのsampling distribution normal/uniform
+  # 数据增强参数的采样分布：正态/均匀
+
+noise: # gaussian noiseの悪性確率。0ノイズなし。値域:0~.
+# 高斯噪声的恶性概率。0为无噪声。值域:0~
+
+  min: 0.
+  max: 10.
+  step: 1.
+
+angle: # 回転角度。0.右回転。0.左回転。値域:-180~180
+# 旋转角度。0为右旋转，0为左旋转。值域:-180~180
+
+  min: 0.
+  max: 0.
+  step: 0.
+
+padding: # padding時の画像位置 LEFT_TOP:左上 CENTER:中央 RANDOM:ランダム位置
+# 填充时的图像位置 LEFT_TOP:左上 CENTER:中央 RANDOM:随机位置
+
+  position: CENTER
+
+crop: # crop時の画像位置 LEFT_TOP:左上 CENTER:中央 RANDOM:ランダム位置
+# 裁剪时的图像位置 LEFT_TOP:左上 CENTER:中央 RANDOM:随机位置
+
+  position: RANDOM
+  default_position: [0.3,664,158] # position=RANDOM未指定時のデフォルトcrop位置
+  # 当 position=RANDOM 未指定时的默认裁剪位置
+
+cutout: # cutout矩形の幅と高さ画像サイズの比 以上はランダム固定
+# cutout 矩形的宽度和高度相对于图像大小的比率
+
+  width:
+    min: 0.0
+    max: 0.4
+    step: 0.08
+
+  height:
+    min: 0.0
+    max: 0.8
+    step: 0.08
+
+symmetry:
+  conv_lr: False # 畳み込みパラメタに関する。左右反転対応
+  # 关于卷积参数。支持左右反转
+
+trainable:
+  backbone: True
+  decoder: True
+  semaseg_trunk: True
+
+task_weight:
+  # roadstat: 0.05
+  # 道路统计：0.05
+  # weather: 0.05
+  # 天气：0.05
+  # time: 0.05
+  # 时间：0.05
+  # place: 0.05
+  # 地点：0.05
+  # tunnel: 0.05
+  # 隧道：0.05
+  # underpass: 0.05
+  # 下穿道：0.05
+  # fee_station: 0.05
+  # 收费站：0.05
+  # lane_regulation_ego: 0.05
+  # 车道法规自我：0.05
+  # lane_regulation_all: 0.05
+  # 车道法规全局：0.05
+  # intersection: 0.05
+  # 路口：0.05
+  # confluence: 0.05
+  # 汇合：0.05
+  # branch: 0.05
+  # 分支：0.05
+  # roundabout: 0.05
+  # 环岛：0.05
+  # lanes: 0.05
+  # 车道：0.05
+  # water_drops_weak: 0.05
+  # 弱水滴：0.05
+  # water_drops_strong: 0.05
+  # 强水滴：0.05
+  # windshield_dirty: 0.05
+  # 挡风玻璃污迹：0.05
+  # backlight: 0.05
+  # 背光：0.05
+  # light_streaks: 0.05
+  # 光线条纹：0.05
+  # wiper_cover: 0.05
+  # 雨刷盖：0.05
+  fss_road: 1.0
+  fss_line: 1.0
+  fss_drivable: 1.0
+  fss_undrivable: 

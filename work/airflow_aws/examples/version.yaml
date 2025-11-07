@@ -1,0 +1,8 @@
+# 示例version.yaml文件
+# 此文件应该存在于Git仓库的 www/version.yaml 路径下
+
+a: 10.0
+b: 10.0
+c: 10.0
+d: 10.0
+

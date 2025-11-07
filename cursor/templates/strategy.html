@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量化策略</title>
+</head>
+<body>
+    <h1>量化策略</h1>
+    
+    <form method="POST">
+        <label for="stock_symbol">股票代码：</label>
+        <input type="text" id="stock_symbol" name="stock_symbol" required><br><br>
+        
+        <label for="buy_condition">买入条件：</label>
+        <input type="text" id="buy_condition" name="buy_condition" required><br><br>
+        
+        <label for="sell_condition">卖出条件：</label>
+        <input type="text" id="sell_condition" name="sell_condition" required><br><br>
+        
+        <input type="submit" value="运行策略">
+    </form>
+
+    {% if result %}
+        <h2>策略运行结果：</h2>
+        <p>{{ result }}</p>
+    {% endif %}
+
+    <br>
+    <a href="{{ url_for('index') }}"><button>返回主页</button></a>
+</body>
+</html>

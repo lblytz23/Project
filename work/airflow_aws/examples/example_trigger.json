@@ -1,0 +1,13 @@
+{
+  "comment": "示例DAG触发配置 - 用于手动或API触发",
+  "dag_id": "gpu_server_cicd_workflow",
+  "conf": {
+    "gpu_server_ip": "10.0.1.100",
+    "workspace_path": "/home/ubuntu/workspace",
+    "secrets_arn": "arn:aws:secretsmanager:us-east-1:123456789012:secret:gpu-server-ssh-key-AbCdEf",
+    "git_repo_url": "https://github.com/your-org/cicd-test.git",
+    "git_branch": "cicd_01_etl",
+    "version_file_path": "www/version.yaml"
+  }
+}
+

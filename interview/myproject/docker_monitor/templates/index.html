@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker 容器监控</title>
+</head>
+<body>
+    <h1>Docker 容器指标</h1>
+    <table border="1">
+        <tr>
+            <th>容器名称</th>
+            <th>CPU 使用率</th>
+            <th>内存使用量</th>
+            <th>网络接收 (bytes)</th>
+            <th>网络发送 (bytes)</th>
+        </tr>
+        {% for stat in container_stats %}
+        <tr>
+            <td>{{ stat.name }}</td>
+            <td>{{ stat.cpu_usage }}</td>
+            <td>{{ stat.memory_usage }}</td>
+            <td>{{ stat.network_rx }}</td>
+            <td>{{ stat.network_tx }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
