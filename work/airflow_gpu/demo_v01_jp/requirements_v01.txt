@@ -1,0 +1,19 @@
+# GPU リソースマネージャー v0.1 依存パッケージ
+
+# テーブル表示（CLIツール用）
+tabulate>=0.9.0
+
+# Python標準ライブラリ（インストール不要）
+# - json
+# - os
+# - time
+# - datetime
+# - fcntl (Unix/Linux のみ)
+# - unittest
+
+# 注意：
+# 1. v0.1 は Airflow に依存しません
+# 2. v0.1 は Flask に依存しません
+# 3. v0.1 は最小限の依存関係のみ必要です
+# 4. Windowsユーザー：fcntl は利用できないため、別のロックメカニズムが必要です
+
