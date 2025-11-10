@@ -1,12 +1,12 @@
 """
-GPU资源管理器 v0.1 - 最小可行版本
-功能：核心资源分配和释放算法
+GPU リソースマネージャー v0.1 - 最小実行可能版
+機能：コアリソース割り当ておよび解放アルゴリズム
 
-特点：
-- 使用JSON文件存储资源状态
-- 简单的文件锁机制（单机版）
-- 首次适应算法
-- 不依赖Airflow或其他复杂组件
+特徴：
+- JSON ファイルでリソース状態を保存
+- シンプルなファイルロックメカニズム（シングルマシン版）
+- First Fit アルゴリズム
+- Airflow やその他の複雑なコンポーネントに依存しない
 """
 
 import json
@@ -19,27 +19,27 @@ import fcntl
 
 class GPUResourceManagerV01:
     """
-    GPU资源管理器 v0.1
+    GPU リソースマネージャー v0.1
     
-    配置：
-    - 4台服务器，每台8个GPU，64个CPU
+    設定：
+    - 4台のサーバー、各8GPU、64CPU
     """
     
-    # 系统配置
+    # システム設定
     TOTAL_SERVERS = 4
     GPUS_PER_SERVER = 8
     CPUS_PER_SERVER = 64
     
-    # 文件路径
+    # ファイルパス
     RESOURCE_FILE = "resource_status.json"
     LOCK_FILE = ".resource.lock"
     
     def __init__(self):
-        """初始化资源管理器"""
+        """リソースマネージャーを初期化"""
         self._init_resource_file()
     
     def _init_resource_file(self):
-        """初始化资源状态文件"""
+        """リソース状態ファイルを初期化"""
         if not os.path.exists(self.RESOURCE_FILE):
             initial_status = {
                 "servers": [
@@ -58,50 +58,50 @@ class GPUResourceManagerV01:
                 "version": "0.1"
             }
             self._write_status(initial_status)
-            print(f"✓ 资源状态文件已创建: {self.RESOURCE_FILE}")
+            print(f"✓ リソース状態ファイルが作成されました: {self.RESOURCE_FILE}")
     
     def _acquire_lock(self, timeout: int = 60) -> Optional[object]:
         """
-        获取文件锁
+        ファイルロックを取得
         
         Args:
-            timeout: 超时时间（秒）
+            timeout: タイムアウト時間（秒）
         
         Returns:
-            文件对象（用于释放锁），失败返回None
+            ファイルオブジェクト（ロック解放用）、失敗時は None
         """
         lock_file = open(self.LOCK_FILE, 'w')
         start_time = time.time()
         
         while time.time() - start_time < timeout:
             try:
-                # 尝试获取排他锁（非阻塞）
+                # 排他ロックを取得（ノンブロッキング）
                 fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                 return lock_file
             except IOError:
-                # 锁被占用，等待
+                # ロックが占有されている、待機
                 time.sleep(0.1)
         
-        # 超时
+        # タイムアウト
         lock_file.close()
         return None
     
     def _release_lock(self, lock_file: object):
-        """释放文件锁"""
+        """ファイルロックを解放"""
         if lock_file:
             try:
                 fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
                 lock_file.close()
             except Exception as e:
-                print(f"⚠ 释放锁时出错: {e}")
+                print(f"⚠ ロック解放時にエラー: {e}")
     
     def _read_status(self) -> Dict:
-        """读取资源状态"""
+        """リソース状態を読み取り"""
         with open(self.RESOURCE_FILE, 'r') as f:
             return json.load(f)
     
     def _write_status(self, status: Dict):
-        """写入资源状态"""
+        """リソース状態を書き込み"""
         status['last_updated'] = datetime.now().isoformat()
         with open(self.RESOURCE_FILE, 'w') as f:
             json.dump(status, f, indent=2)
@@ -114,61 +114,61 @@ class GPUResourceManagerV01:
         prefer_server_id: Optional[int] = None
     ) -> Optional[Dict]:
         """
-        分配GPU和CPU资源
+        GPU および CPU リソースを割り当て
         
-        算法：首次适应算法（First Fit）
+        アルゴリズム：First Fit アルゴリズム
         
         Args:
-            task_id: 任务唯一标识符
-            required_gpus: 需要的GPU数量（2-8）
-            required_cpus: 需要的CPU数量（1-64）
-            prefer_server_id: 优先选择的服务器ID（可选）
+            task_id: タスク一意識別子
+            required_gpus: 必要な GPU 数（2-8）
+            required_cpus: 必要な CPU 数（1-64）
+            prefer_server_id: 優先するサーバー ID（オプション）
         
         Returns:
-            分配成功返回字典：
+            割り当て成功時は辞書を返す：
             {
                 'server_id': int,
                 'server_name': str,
                 'gpu_ids': List[int],
                 'cpu_count': int,
-                'gpu_devices': str,  # 用于CUDA_VISIBLE_DEVICES
+                'gpu_devices': str,  # CUDA_VISIBLE_DEVICES 用
                 'task_id': str
             }
-            分配失败返回None
+            割り当て失敗時は None
         
         Raises:
-            ValueError: 参数不合法
+            ValueError: パラメータが不正
         """
-        # 参数验证
+        # パラメータ検証
         if not (2 <= required_gpus <= 8):
-            raise ValueError(f"GPU数量必须在2-8之间，当前值: {required_gpus}")
+            raise ValueError(f"GPU 数は 2-8 の間である必要があります、現在値: {required_gpus}")
         
         if not (1 <= required_cpus <= self.CPUS_PER_SERVER):
-            raise ValueError(f"CPU数量必须在1-{self.CPUS_PER_SERVER}之间，当前值: {required_cpus}")
+            raise ValueError(f"CPU 数は 1-{self.CPUS_PER_SERVER} の間である必要があります、現在値: {required_cpus}")
         
         if prefer_server_id is not None:
             if not (0 <= prefer_server_id < self.TOTAL_SERVERS):
-                raise ValueError(f"服务器ID必须在0-{self.TOTAL_SERVERS-1}之间")
+                raise ValueError(f"サーバー ID は 0-{self.TOTAL_SERVERS-1} の間である必要があります")
         
-        # 获取锁
+        # ロックを取得
         lock_file = self._acquire_lock()
         if lock_file is None:
-            print("✗ 获取锁超时")
+            print("✗ ロック取得タイムアウト")
             return None
         
         try:
-            # 读取当前状态
+            # 現在の状態を読み取り
             status = self._read_status()
             selected_server = None
             
-            # 如果指定了优先服务器，先检查
+            # 優先サーバーが指定されている場合、まず確認
             if prefer_server_id is not None:
                 server = status['servers'][prefer_server_id]
                 if (len(server['available_gpus']) >= required_gpus and
                     server['available_cpus'] >= required_cpus):
                     selected_server = server
             
-            # 如果优先服务器不可用或未指定，遍历所有服务器
+            # 優先サーバーが利用不可または未指定の場合、すべてのサーバーを走査
             if selected_server is None:
                 for server in status['servers']:
                     if (len(server['available_gpus']) >= required_gpus and
@@ -176,19 +176,19 @@ class GPUResourceManagerV01:
                         selected_server = server
                         break
             
-            # 没有找到合适的服务器
+            # 適切なサーバーが見つからない
             if selected_server is None:
-                print(f"✗ 资源不足: 需要 {required_gpus} GPUs 和 {required_cpus} CPUs")
+                print(f"✗ リソース不足: {required_gpus} GPU と {required_cpus} CPU が必要です")
                 return None
             
-            # 分配GPU
+            # GPU を割り当て
             allocated_gpus = selected_server['available_gpus'][:required_gpus]
             selected_server['available_gpus'] = selected_server['available_gpus'][required_gpus:]
             
-            # 分配CPU
+            # CPU を割り当て
             selected_server['available_cpus'] -= required_cpus
             
-            # 记录任务信息
+            # タスク情報を記録
             task_info = {
                 'task_id': task_id,
                 'allocated_gpus': allocated_gpus,
@@ -197,10 +197,10 @@ class GPUResourceManagerV01:
             }
             selected_server['running_tasks'].append(task_info)
             
-            # 保存状态
+            # 状態を保存
             self._write_status(status)
             
-            # 构建返回结果
+            # 返却結果を構築
             result = {
                 'server_id': selected_server['server_id'],
                 'server_name': selected_server['server_name'],
@@ -210,73 +210,73 @@ class GPUResourceManagerV01:
                 'task_id': task_id
             }
             
-            print(f"✓ 资源分配成功:")
-            print(f"  服务器: {result['server_name']}")
-            print(f"  GPU IDs: {result['gpu_ids']}")
-            print(f"  CPU数量: {result['cpu_count']}")
+            print(f"✓ リソース割り当て成功:")
+            print(f"  サーバー: {result['server_name']}")
+            print(f"  GPU ID: {result['gpu_ids']}")
+            print(f"  CPU 数: {result['cpu_count']}")
             
             return result
             
         finally:
-            # 确保释放锁
+            # ロックを確実に解放
             self._release_lock(lock_file)
     
     def release_resources(self, task_id: str) -> bool:
         """
-        释放指定任务的资源
+        指定されたタスクのリソースを解放
         
         Args:
-            task_id: 任务唯一标识符
+            task_id: タスク一意識別子
         
         Returns:
-            成功返回True，失败返回False
+            成功時 True、失敗時 False
         """
-        # 获取锁
+        # ロックを取得
         lock_file = self._acquire_lock()
         if lock_file is None:
-            print("✗ 获取锁超时")
+            print("✗ ロック取得タイムアウト")
             return False
         
         try:
-            # 读取当前状态
+            # 現在の状態を読み取り
             status = self._read_status()
             
-            # 查找任务
+            # タスクを検索
             for server in status['servers']:
                 for task in server['running_tasks']:
                     if task['task_id'] == task_id:
-                        # 找到任务，归还资源
+                        # タスクを見つけた、リソースを返却
                         
-                        # 归还GPU
+                        # GPU を返却
                         server['available_gpus'].extend(task['allocated_gpus'])
-                        server['available_gpus'].sort()  # 保持有序
+                        server['available_gpus'].sort()  # ソート維持
                         
-                        # 归还CPU
+                        # CPU を返却
                         server['available_cpus'] += task['allocated_cpus']
                         
-                        # 移除任务记录
+                        # タスク記録を削除
                         server['running_tasks'].remove(task)
                         
-                        # 保存状态
+                        # 状態を保存
                         self._write_status(status)
                         
-                        print(f"✓ 资源已释放: {task_id}")
+                        print(f"✓ リソース解放完了: {task_id}")
                         return True
             
-            # 未找到任务
-            print(f"✗ 未找到任务: {task_id}")
+            # タスクが見つからない
+            print(f"✗ タスクが見つかりません: {task_id}")
             return False
             
         finally:
-            # 确保释放锁
+            # ロックを確実に解放
             self._release_lock(lock_file)
     
     def get_resource_summary(self) -> Dict:
         """
-        获取资源使用摘要
+        リソース使用状況のサマリーを取得
         
         Returns:
-            资源摘要字典
+            リソースサマリー辞書
         """
         status = self._read_status()
         
@@ -313,7 +313,7 @@ class GPUResourceManagerV01:
             }
             summary['servers'].append(server_summary)
             
-            # 累计统计
+            # 累計統計
             summary['total_available_gpus'] += available_gpus
             summary['total_gpus'] += total_gpus
             summary['total_available_cpus'] += available_cpus
@@ -324,36 +324,36 @@ class GPUResourceManagerV01:
     
     def get_detailed_status(self) -> Dict:
         """
-        获取详细资源状态（包含所有任务信息）
+        詳細なリソース状態を取得（すべてのタスク情報を含む）
         
         Returns:
-            完整的资源状态字典
+            完全なリソース状態辞書
         """
         return self._read_status()
     
     def reset_resources(self) -> bool:
         """
-        重置所有资源状态（危险操作！）
+        すべてのリソース状態をリセット（危険な操作！）
         
-        警告：这将清除所有运行中任务的记录
+        警告：実行中のすべてのタスク記録がクリアされます
         
         Returns:
-            成功返回True
+            成功時 True
         """
         lock_file = self._acquire_lock()
         if lock_file is None:
-            print("✗ 获取锁超时")
+            print("✗ ロック取得タイムアウト")
             return False
         
         try:
-            # 删除现有文件
+            # 既存ファイルを削除
             if os.path.exists(self.RESOURCE_FILE):
                 os.remove(self.RESOURCE_FILE)
             
-            # 重新初始化
+            # 再初期化
             self._init_resource_file()
             
-            print("✓ 资源状态已重置")
+            print("✓ リソース状態がリセットされました")
             return True
             
         finally:
@@ -361,41 +361,40 @@ class GPUResourceManagerV01:
 
 
 if __name__ == "__main__":
-    # 简单的测试
-    print("GPU资源管理器 v0.1 - 测试")
+    # 簡単なテスト
+    print("GPU リソースマネージャー v0.1 - テスト")
     print("=" * 60)
     
     manager = GPUResourceManagerV01()
     
-    # 测试1: 查看初始状态
-    print("\n测试1: 查看初始状态")
+    # テスト1: 初期状態を確認
+    print("\nテスト1: 初期状態を確認")
     summary = manager.get_resource_summary()
-    print(f"总GPU数: {summary['total_gpus']}")
-    print(f"可用GPU数: {summary['total_available_gpus']}")
+    print(f"総 GPU 数: {summary['total_gpus']}")
+    print(f"利用可能 GPU 数: {summary['total_available_gpus']}")
     
-    # 测试2: 分配资源
-    print("\n测试2: 分配资源")
+    # テスト2: リソースを割り当て
+    print("\nテスト2: リソースを割り当て")
     result = manager.allocate_resources("test_task_001", 4, 32)
     if result:
-        print(f"分配结果: {result}")
+        print(f"割り当て結果: {result}")
     
-    # 测试3: 查看状态
-    print("\n测试3: 查看分配后状态")
+    # テスト3: 状態を確認
+    print("\nテスト3: 割り当て後の状態を確認")
     summary = manager.get_resource_summary()
-    print(f"可用GPU数: {summary['total_available_gpus']}")
-    print(f"运行任务数: {summary['total_running_tasks']}")
+    print(f"利用可能 GPU 数: {summary['total_available_gpus']}")
+    print(f"実行中タスク数: {summary['total_running_tasks']}")
     
-    # 测试4: 释放资源
-    print("\n测试4: 释放资源")
+    # テスト4: リソースを解放
+    print("\nテスト4: リソースを解放")
     success = manager.release_resources("test_task_001")
-    print(f"释放结果: {success}")
+    print(f"解放結果: {success}")
     
-    # 测试5: 查看最终状态
-    print("\n测试5: 查看最终状态")
+    # テスト5: 最終状態を確認
+    print("\nテスト5: 最終状態を確認")
     summary = manager.get_resource_summary()
-    print(f"可用GPU数: {summary['total_available_gpus']}")
-    print(f"运行任务数: {summary['total_running_tasks']}")
+    print(f"利用可能 GPU 数: {summary['total_available_gpus']}")
+    print(f"実行中タスク数: {summary['total_running_tasks']}")
     
     print("\n" + "=" * 60)
-    print("测试完成！")
-
+    print("テスト完了！")

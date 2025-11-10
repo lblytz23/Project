@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-GPU资源管理器 CLI工具 v0.1
-命令行界面，用于查看和管理GPU资源
+GPU リソースマネージャー CLI ツール v0.1
+コマンドラインインターフェース、GPU リソースの表示と管理用
 """
 
 import argparse
@@ -12,22 +12,22 @@ from gpu_resource_manager_v01 import GPUResourceManagerV01
 
 
 def cmd_init(args):
-    """初始化资源管理系统"""
-    print("初始化GPU资源管理系统...")
+    """リソース管理システムを初期化"""
+    print("GPU リソース管理システムを初期化中...")
     manager = GPUResourceManagerV01()
-    print("✓ 初始化完成！")
+    print("✓ 初期化完了！")
 
 
 def cmd_status(args):
-    """显示资源状态"""
+    """リソース状態を表示"""
     manager = GPUResourceManagerV01()
     summary = manager.get_resource_summary()
     
     print("\n" + "=" * 80)
-    print("GPU资源状态")
+    print("GPU リソース状態")
     print("=" * 80)
     
-    # 准备表格数据
+    # テーブルデータを準備
     table_data = []
     for server in summary['servers']:
         table_data.append([
@@ -39,58 +39,58 @@ def cmd_status(args):
             server['running_tasks']
         ])
     
-    # 显示表格
-    headers = ['服务器', 'GPU可用/总数', 'GPU利用率', 'CPU可用/总数', 'CPU利用率', '运行任务数']
+    # テーブルを表示
+    headers = ['サーバー', 'GPU利用可/合計', 'GPU使用率', 'CPU利用可/合計', 'CPU使用率', '実行中タスク数']
     print(tabulate(table_data, headers=headers, tablefmt='grid'))
     
-    # 显示总计
-    print("\n总计:")
-    print(f"  GPU: {summary['total_available_gpus']}/{summary['total_gpus']} 可用")
-    print(f"  CPU: {summary['total_available_cpus']}/{summary['total_cpus']} 可用")
-    print(f"  运行任务: {summary['total_running_tasks']}")
+    # 合計を表示
+    print("\n合計:")
+    print(f"  GPU: {summary['total_available_gpus']}/{summary['total_gpus']} 利用可能")
+    print(f"  CPU: {summary['total_available_cpus']}/{summary['total_cpus']} 利用可能")
+    print(f"  実行中タスク: {summary['total_running_tasks']}")
     print()
 
 
 def cmd_detail(args):
-    """显示详细信息"""
+    """詳細情報を表示"""
     manager = GPUResourceManagerV01()
     status = manager.get_detailed_status()
     
     print("\n" + "=" * 80)
-    print("GPU资源详细信息")
+    print("GPU リソース詳細情報")
     print("=" * 80)
     
     for server in status['servers']:
-        print(f"\n服务器: {server['server_name']} (ID: {server['server_id']})")
-        print(f"  总GPU数: {server['total_gpus']}")
-        print(f"  可用GPU ID: {server['available_gpus']}")
-        print(f"  总CPU数: {server['total_cpus']}")
-        print(f"  可用CPU数: {server['available_cpus']}")
+        print(f"\nサーバー: {server['server_name']} (ID: {server['server_id']})")
+        print(f"  総 GPU 数: {server['total_gpus']}")
+        print(f"  利用可能 GPU ID: {server['available_gpus']}")
+        print(f"  総 CPU 数: {server['total_cpus']}")
+        print(f"  利用可能 CPU 数: {server['available_cpus']}")
         
         if server['running_tasks']:
-            print(f"  运行中的任务 ({len(server['running_tasks'])}):")
+            print(f"  実行中のタスク ({len(server['running_tasks'])}):")
             for task in server['running_tasks']:
-                print(f"    - 任务ID: {task['task_id']}")
+                print(f"    - タスク ID: {task['task_id']}")
                 print(f"      GPU: {task['allocated_gpus']}")
                 print(f"      CPU: {task['allocated_cpus']}")
-                print(f"      开始时间: {task['start_time']}")
+                print(f"      開始時刻: {task['start_time']}")
         else:
-            print(f"  运行中的任务: 无")
+            print(f"  実行中のタスク: なし")
     
-    print(f"\n最后更新时间: {status['last_updated']}")
+    print(f"\n最終更新時刻: {status['last_updated']}")
     print()
 
 
 def cmd_allocate(args):
-    """分配资源"""
+    """リソースを割り当て"""
     task_id = args.task_id
     gpus = args.gpus
     cpus = args.cpus
     
-    print(f"\n尝试分配资源:")
-    print(f"  任务ID: {task_id}")
-    print(f"  GPU数量: {gpus}")
-    print(f"  CPU数量: {cpus}")
+    print(f"\nリソース割り当てを試行中:")
+    print(f"  タスク ID: {task_id}")
+    print(f"  GPU 数: {gpus}")
+    print(f"  CPU 数: {cpus}")
     print()
     
     manager = GPUResourceManagerV01()
@@ -99,123 +99,123 @@ def cmd_allocate(args):
         result = manager.allocate_resources(task_id, gpus, cpus)
         
         if result:
-            print("\n✓ 资源分配成功!")
-            print(f"  服务器: {result['server_name']}")
-            print(f"  GPU IDs: {result['gpu_ids']}")
-            print(f"  GPU设备字符串: {result['gpu_devices']}")
-            print(f"  CPU数量: {result['cpu_count']}")
-            print(f"\n使用提示:")
+            print("\n✓ リソース割り当て成功！")
+            print(f"  サーバー: {result['server_name']}")
+            print(f"  GPU ID: {result['gpu_ids']}")
+            print(f"  GPU デバイス文字列: {result['gpu_devices']}")
+            print(f"  CPU 数: {result['cpu_count']}")
+            print(f"\n使用ヒント:")
             print(f"  export CUDA_VISIBLE_DEVICES={result['gpu_devices']}")
-            print(f"\n释放资源:")
+            print(f"\nリソース解放:")
             print(f"  python cli_v01.py --release {task_id}")
             print()
             return 0
         else:
-            print("\n✗ 资源分配失败: 没有足够的可用资源")
-            print("\n建议:")
-            print("  1. 查看当前资源状态: python cli_v01.py --status")
-            print("  2. 等待其他任务完成")
-            print("  3. 减少资源需求")
+            print("\n✗ リソース割り当て失敗: 利用可能なリソースが不足しています")
+            print("\n提案:")
+            print("  1. 現在のリソース状態を確認: python cli_v01.py --status")
+            print("  2. 他のタスクが完了するまで待機")
+            print("  3. リソース要求を減らす")
             print()
             return 1
             
     except ValueError as e:
-        print(f"\n✗ 参数错误: {e}")
+        print(f"\n✗ パラメータエラー: {e}")
         print()
         return 1
 
 
 def cmd_release(args):
-    """释放资源"""
+    """リソースを解放"""
     task_id = args.task_id
     
-    print(f"\n尝试释放资源: {task_id}")
+    print(f"\nリソース解放を試行中: {task_id}")
     
     manager = GPUResourceManagerV01()
     success = manager.release_resources(task_id)
     
     if success:
-        print("✓ 资源释放成功!")
+        print("✓ リソース解放成功！")
         print()
         return 0
     else:
-        print("✗ 资源释放失败: 未找到该任务")
-        print("\n建议:")
-        print("  1. 检查任务ID是否正确")
-        print("  2. 查看详细信息: python cli_v01.py --detail")
+        print("✗ リソース解放失敗: タスクが見つかりません")
+        print("\n提案:")
+        print("  1. タスク ID が正しいか確認")
+        print("  2. 詳細情報を確認: python cli_v01.py --detail")
         print()
         return 1
 
 
 def cmd_reset(args):
-    """重置资源"""
-    # 确认操作
+    """リソースをリセット"""
+    # 操作を確認
     if not args.yes:
-        print("\n⚠️  警告: 这将清除所有运行中任务的记录!")
-        response = input("确定要重置吗? (yes/no): ")
+        print("\n⚠️  警告: 実行中のすべてのタスク記録がクリアされます！")
+        response = input("リセットしてもよろしいですか? (yes/no): ")
         if response.lower() != 'yes':
-            print("操作已取消")
+            print("操作がキャンセルされました")
             return 0
     
-    print("\n重置资源管理系统...")
+    print("\nリソース管理システムをリセット中...")
     manager = GPUResourceManagerV01()
     success = manager.reset_resources()
     
     if success:
-        print("✓ 重置完成!")
+        print("✓ リセット完了！")
         return 0
     else:
-        print("✗ 重置失败")
+        print("✗ リセット失敗")
         return 1
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='GPU资源管理器 CLI v0.1',
+        description='GPU リソースマネージャー CLI v0.1',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-示例:
-  # 初始化系统
+例:
+  # システムを初期化
   %(prog)s --init
   
-  # 查看资源状态
+  # リソース状態を確認
   %(prog)s --status
   
-  # 查看详细信息
+  # 詳細情報を確認
   %(prog)s --detail
   
-  # 分配资源 (任务ID, GPU数量, CPU数量)
+  # リソースを割り当て (タスクID, GPU数, CPU数)
   %(prog)s --allocate task_001 4 32
   
-  # 释放资源
+  # リソースを解放
   %(prog)s --release task_001
   
-  # 重置系统 (危险操作!)
+  # システムをリセット (危険な操作!)
   %(prog)s --reset
         """
     )
     
-    # 创建子命令
-    subparsers = parser.add_subparsers(dest='command', help='可用命令')
+    # サブコマンドを作成
+    subparsers = parser.add_subparsers(dest='command', help='利用可能なコマンド')
     
-    # 或使用参数方式（更简单）
-    parser.add_argument('--init', action='store_true', help='初始化资源管理系统')
-    parser.add_argument('--status', action='store_true', help='显示资源状态')
-    parser.add_argument('--detail', action='store_true', help='显示详细信息')
+    # またはパラメータ方式（よりシンプル）
+    parser.add_argument('--init', action='store_true', help='リソース管理システムを初期化')
+    parser.add_argument('--status', action='store_true', help='リソース状態を表示')
+    parser.add_argument('--detail', action='store_true', help='詳細情報を表示')
     parser.add_argument('--allocate', nargs=3, metavar=('TASK_ID', 'GPUS', 'CPUS'),
-                       help='分配资源 (任务ID GPU数量 CPU数量)')
-    parser.add_argument('--release', metavar='TASK_ID', help='释放资源')
-    parser.add_argument('--reset', action='store_true', help='重置资源状态（危险！）')
-    parser.add_argument('--yes', '-y', action='store_true', help='自动确认（用于reset）')
+                       help='リソースを割り当て (タスクID GPU数 CPU数)')
+    parser.add_argument('--release', metavar='TASK_ID', help='リソースを解放')
+    parser.add_argument('--reset', action='store_true', help='リソース状態をリセット（危険！）')
+    parser.add_argument('--yes', '-y', action='store_true', help='自動確認（reset用）')
     
     args = parser.parse_args()
     
-    # 如果没有参数，显示帮助
+    # パラメータがない場合、ヘルプを表示
     if len(sys.argv) == 1:
         parser.print_help()
         return 0
     
-    # 执行相应的命令
+    # 対応するコマンドを実行
     try:
         if args.init:
             return cmd_init(args)
@@ -227,7 +227,7 @@ def main():
             return cmd_detail(args)
         
         elif args.allocate:
-            # 解析参数
+            # パラメータを解析
             task_id, gpus, cpus = args.allocate
             args.task_id = task_id
             args.gpus = int(gpus)
@@ -246,7 +246,7 @@ def main():
             return 0
             
     except Exception as e:
-        print(f"\n✗ 错误: {e}")
+        print(f"\n✗ エラー: {e}")
         import traceback
         traceback.print_exc()
         return 1
@@ -254,4 +254,3 @@ def main():
 
 if __name__ == '__main__':
     sys.exit(main())
-
