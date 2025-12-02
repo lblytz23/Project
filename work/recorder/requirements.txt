@@ -1,0 +1,25 @@
+# 屏幕录制软件依赖包
+
+# GUI
+# tkinter 已内置在Python中，无需安装
+
+# 屏幕截图
+pyautogui==0.9.54
+Pillow==10.1.0
+
+# 视频处理
+opencv-python==4.8.1.78
+numpy==1.24.3
+
+# 音频录制
+PyAudio==0.2.14
+
+# 注意：
+# 1. ffmpeg 需要单独安装并添加到系统PATH
+#    下载地址：https://ffmpeg.org/download.html
+#    或使用：choco install ffmpeg (Windows)
+#
+# 2. PyAudio 在Windows上可能需要从wheel文件安装
+#    下载地址：https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+#    安装命令：pip install PyAudio-0.2.14-cpXX-cpXX-win_amd64.whl
+
